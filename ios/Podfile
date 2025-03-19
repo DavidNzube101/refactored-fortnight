@@ -1,53 +1,93 @@
+# Podfile
+require_relative '../node_modules/react-native/scripts/react_native_pods'
 require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
-# Resolve react_native_pods.rb with node to allow for hoisting
-def node_require(script)
-require Pod::Executable.execute_command('node', ['-p',
-  'require.resolve(
-    "react-native/scripts/react_native_pods.rb",
-    {paths: [process.argv[1]]},
-  )', __dir__]).strip
-end
-node_require('react-native/scripts/react_native_pods.rb')
-node_require('react-native-permissions/scripts/setup.rb')
+require 'json'
+podfile_properties = JSON.parse(File.read('./Podfile.properties.json')) rescue {}
 
-platform :ios,'15.1'
+ENV['RCT_NEW_ARCH_ENABLED'] = podfile_properties['newArchEnabled'] == 'true' ? '1' : '0'
+ENV['EX_DEV_CLIENT_NETWORK_INSPECTOR'] = podfile_properties['EX_DEV_CLIENT_NETWORK_INSPECTOR']
+
+platform :ios, podfile_properties['ios.deploymentTarget'] || '15.1'
+use_modular_headers!
+
+# Prepare React Native project
 prepare_react_native_project!
 
-linkage = ENV['USE_FRAMEWORKS']
-# if linkage != nil
-#   Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
-#   use_frameworks! :linkage => :static
-# end
-
-use_frameworks! :linkage => :static
-$RNFirebaseAsStaticFramework = true
-
 target 'TaxidoUserUI' do
-  config = use_native_modules!
-  flags = get_default_flags()
+  # Integrate Expo modules
+  use_native_modules!
 
-  pod 'react-native-contacts', :path => '../node_modules/react-native-contacts'
+  # Firebase dependencies
+  pod 'gRPC-Core', '~> 1.65.0'
+  pod 'gRPC-C++', '~> 1.65.0'
+  pod 'FirebaseCoreExtension', '~> 11.8.0'
 
-  use_react_native!(
-    :path => config[:reactNativePath],
-    # An absolute path to your application root.
-    :hermes_enabled => flags[:hermes_enabled],
-    :fabric_enabled => flags[:fabric_enabled],
-    :app_path => "#{Pod::Config.instance.installation_root}/.."
-  )
+  # Explicitly include React-Core for RCTEventDispatcher
+  pod 'React-Core', :path => '../node_modules/react-native'
 
-  target 'TaxidoUserUITests' do
-    inherit! :complete
-    # Pods for testing
+  # Explicitly include RNCClipboard and RNReanimated
+  pod 'RNCClipboard', :path => '../node_modules/@react-native-clipboard/clipboard'
+  pod 'RNReanimated', :path => '../node_modules/react-native-reanimated'
+
+  # Configure native modules
+  if podfile_properties['EXPO_USE_COMMUNITY_AUTOLINKING'].nil? || podfile_properties['EXPO_USE_COMMUNITY_AUTOLINKING'] == 'true'
+    config = use_native_modules!
+  else
+    use_autolinking_script!('../node_modules/expo-modules-autolinking/ios')
+    config = {}
   end
 
+  # Configure frameworks
+  if podfile_properties['ios.useFrameworks'].nil?
+    use_frameworks! :linkage => ENV['USE_FRAMEWORKS'] == 'static' ? :static : :dynamic
+  else
+    use_frameworks! :linkage => podfile_properties['ios.useFrameworks'].to_sym
+  end
+
+  # Integrate React Native
+  use_react_native!(
+    :path => config[:reactNativePath] || '../node_modules/react-native',
+    :hermes_enabled => podfile_properties['reactNative.hermesEnabled'] || true,
+    :app_path => "#{Pod::Config.instance.installation_root}/..",
+    :privacy_file_aggregation_enabled => podfile_properties['ios.privacyFileAggregationEnabled'] || false
+  )
+
+  # Post-install configuration
   post_install do |installer|
-    # https://github.com/facebook/react-native/blob/main/packages/react-native/scripts/react_native_pods.rb#L197-L202
     react_native_post_install(
       installer,
-      config[:reactNativePath],
+      config[:reactNativePath] || '../node_modules/react-native',
       :mac_catalyst_enabled => false,
-      # :ccache_enabled => true
+      :ccache_enabled => podfile_properties['reactNative.ccacheEnabled'] == 'true'
     )
+
+    # Workaround for Xcode 14: disable code signing for resource bundles
+    installer.generated_projects.each do |project|
+      project.targets.each do |target|
+        target.build_configurations.each do |config|
+          config.build_settings['CODE_SIGNING_ALLOWED'] = 'NO'
+        end
+      end
+    end
+
+    # Ensure MobileCoreServices is linked for RNCClipboard
+    installer.pods_project.targets.each do |target|
+      if target.name == 'RNCClipboard'
+        target.build_configurations.each do |config|
+          config.build_settings['OTHER_LDFLAGS'] ||= ['$(inherited)']
+          config.build_settings['OTHER_LDFLAGS'] << '-framework MobileCoreServices'
+        end
+      end
+    end
+
+    # Ensure React-Core is linked for RNReanimated
+    installer.pods_project.targets.each do |target|
+      if target.name == 'RNReanimated'
+        target.build_configurations.each do |config|
+          config.build_settings['OTHER_LDFLAGS'] ||= ['$(inherited)']
+          config.build_settings['OTHER_LDFLAGS'] << '-framework React-Core'
+        end
+      end
+    end
   end
 end
