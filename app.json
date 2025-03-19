@@ -3,6 +3,14 @@
     "name": "TaxidoUserUI",
     "android": {
       "package": "com.taxidouser"
+    },
+    "ios": {
+      "bundleIdentifier": "com.denzelsika.taxidouserui"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "7d02b569-371f-4599-b8c7-7cd6e28f8e0c"
+      }
     }
   }
 }
