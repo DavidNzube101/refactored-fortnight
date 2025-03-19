@@ -1,0 +1,98 @@
+{
+    "project_info": {
+      "project_number": "443665161510",
+      "project_id": "taxido-rides",
+      "storage_bucket": "taxido-rides.firebasestorage.app"
+    },
+    "client": [
+      {
+        "client_info": {
+          "mobilesdk_app_id": "1:443665161510:android:2b6342732b9f89b76d35e7",
+          "android_client_info": {
+            "package_name": "com.taxidodriver"
+          }
+        },
+        "oauth_client": [
+          {
+            "client_id": "443665161510-ff6dhdhlh8st05bv3a1drhcjjf9ifkoh.apps.googleusercontent.com",
+            "client_type": 1,
+            "android_info": {
+              "package_name": "app.taxido.driver",
+              "certificate_hash": "db6605bdfe9be5a7736e5307eff3915483110546"
+            }
+          },
+          {
+            "client_id": "443665161510-p5ticfncacjjcsu30gq9uvvhv6p88niu.apps.googleusercontent.com",
+            "client_type": 3
+          }
+        ],
+        "api_key": [
+          {
+            "current_key": "AIzaSyC158pFdKYfj5iyR-94SfWqdHPQS8D50mY"
+          }
+        ],
+        "services": {
+          "appinvite_service": {
+            "other_platform_oauth_client": [
+              {
+                "client_id": "443665161510-p5ticfncacjjcsu30gq9uvvhv6p88niu.apps.googleusercontent.com",
+                "client_type": 3
+              },
+              {
+                "client_id": "443665161510-57g1ra5uvhph75tsr6v8pbp76oevdksi.apps.googleusercontent.com",
+                "client_type": 2,
+                "ios_info": {
+                  "bundle_id": "app.taxido.user"
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "client_info": {
+          "mobilesdk_app_id": "1:443665161510:android:17c9bd6ba25ec9846d35e7",
+          "android_client_info": {
+            "package_name": "com.taxidouser"
+          }
+        },
+        "oauth_client": [
+          {
+            "client_id": "443665161510-196humtot74di6jeealo63ek5jb6c7i6.apps.googleusercontent.com",
+            "client_type": 1,
+            "android_info": {
+              "package_name": "app.taxido.user",
+              "certificate_hash": "036c6602aa2cb68a0278af11883e22c143b6c625"
+            }
+          },
+          {
+            "client_id": "443665161510-p5ticfncacjjcsu30gq9uvvhv6p88niu.apps.googleusercontent.com",
+            "client_type": 3
+          }
+        ],
+        "api_key": [
+          {
+            "current_key": "AIzaSyC158pFdKYfj5iyR-94SfWqdHPQS8D50mY"
+          }
+        ],
+        "services": {
+          "appinvite_service": {
+            "other_platform_oauth_client": [
+              {
+                "client_id": "443665161510-p5ticfncacjjcsu30gq9uvvhv6p88niu.apps.googleusercontent.com",
+                "client_type": 3
+              },
+              {
+                "client_id": "443665161510-57g1ra5uvhph75tsr6v8pbp76oevdksi.apps.googleusercontent.com",
+                "client_type": 2,
+                "ios_info": {
+                  "bundle_id": "app.taxido.user"
+                }
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "configuration_version": "1"
+  }
